@@ -1,21 +1,9 @@
 version: "3.8"
 services:
-  backtest:
-    build: .
-    working_dir: /app
-    command: ["python", "strategy_backtest.py"]
-    volumes:
-      - ./data:/data
-    env_file:
-      - .env
-    restart: "no"
-
   paper:
     build: .
-    working_dir: /app
-    command: ["python", "paper_runner.py"]
-    volumes:
-      - ./data:/data
-    env_file:
-      - .env
-    restart: always
+    command: python -u app/paper_runner.py
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
