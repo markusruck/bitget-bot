@@ -2,7 +2,7 @@ version: "3.8"
 services:
   paper:
     build: .
-    command: python -u app/paper_runner.py
+    command: bash -lc 'python3 -u app/paper_runner.py || (echo CRASHED; sleep 3600)'
     restart: unless-stopped
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
