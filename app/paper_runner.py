@@ -23,6 +23,42 @@ try:
 import os, time, json
 try:
     import requests
+
+# === RUNTIME GUARD & TELEGRAM PING ===
+import os, json, requests
+from datetime import datetime, timezone
+
+DATA_DIR = "/data"
+STATE = os.path.join(DATA_DIR, "state.json")
+LOG   = os.path.join(DATA_DIR, "paper_trades.csv")
+
+def ensure_data():
+    os.makedirs(DATA_DIR, exist_ok=True)
+    if not os.path.exists(STATE):
+        with open(STATE, "w") as f:
+            f.write("{}")
+    if not os.path.exists(LOG):
+        with open(LOG, "a") as f:
+            f.write("time,level,a,b,c,msg\n")
+
+def _tg(msg):
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat  = os.getenv("TELEGRAM_CHAT_ID")
+    if not (token and chat):
+        print("[INIT] TELEGRAM ENV present:", bool(token), bool(chat))
+        return
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat, "text": msg},
+            timeout=10
+        )
+    except Exception as e:
+        print("Telegram send fail:", e)
+
+def _startup_ping():
+    _tg("✅ Paper-Runner gestartet.")
+# === END GUARD ===
 except Exception as _e:
     requests = None
     print("[INIT] requests not available:", _e)
