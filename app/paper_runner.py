@@ -1,3 +1,107 @@
+# ================== CLEAN HEADER ==================
+import os
+import sys
+import time
+import json
+import requests
+import ccxt
+import pandas as pd
+from datetime import datetime, timezone
+
+# --- DEBUG: Telegram ENV + Umgebung ----------------
+print("[INIT] TELEGRAM ENV present:",
+      bool(os.getenv("TELEGRAM_BOT_TOKEN")),
+      bool(os.getenv("TELEGRAM_CHAT_ID")))
+print("[INIT] CWD:", os.getcwd())
+try:
+    print("[INIT] LS:", os.listdir("."))
+except Exception as e:
+    print("[INIT] LS failed:", e)
+
+# --- Telegram Helper -------------------------------
+def _tg(msg: str):
+    try:
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        chat = os.getenv("TELEGRAM_CHAT_ID")
+        if not token or not chat:
+            print("⚠️ Telegram ENV not set, skipping:", msg)
+            return
+        r = requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat, "text": msg},
+            timeout=10
+        )
+        print("Telegram status:", r.status_code)
+    except Exception as e:
+        print("Telegram send fail:", e)
+
+def _startup_ping():
+    _tg("✅ Paper-Runner gestartet.")
+
+# --- Ensure /data exists ----------------------------
+def ensure_data():
+    os.makedirs("/data", exist_ok=True)
+    for f in ["state.json", "paper_trades.csv"]:
+        path = os.path.join("/data", f)
+        if not os.path.exists(path):
+            open(path, "w").close()
+# ================= END CLEAN HEADER =================
+
+# ================== CLEAN HEADER ==================
+import os
+import sys
+import time
+import json
+import requests
+import ccxt
+import pandas as pd
+from datetime import datetime, timezone
+
+# --- DEBUG: Telegram ENV + Umgebung ----------------
+print("[INIT] TELEGRAM ENV present:",
+      bool(os.getenv("TELEGRAM_BOT_TOKEN")),
+      bool(os.getenv("TELEGRAM_CHAT_ID")))
+
+print("[INIT] CWD:", os.getcwd())
+try:
+    print("[INIT] LS:", os.listdir("."))
+except Exception as e:
+    print("[INIT] LS failed:", e)
+
+# --- Telegram Helper -------------------------------
+def _tg(msg: str):
+    try:
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        chat = os.getenv("TELEGRAM_CHAT_ID")
+        if not token or not chat:
+            print("⚠️ Telegram ENV not set, skipping message:", msg)
+            return
+        r = requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat, "text": msg},
+            timeout=10
+        )
+        print("Telegram status:", r.status_code)
+    except Exception as e:
+        print("Telegram send fail:", e)
+
+def _startup_ping():
+    _tg("✅ Paper-Runner gestartet.")
+
+# --- Ensure /data exists ----------------------------
+def ensure_data():
+    os.makedirs("/data", exist_ok=True)
+    for f in ["state.json", "paper_trades.csv"]:
+        path = os.path.join("/data", f)
+        if not os.path.exists(path):
+            open(path, "w").close()
+# ====================================================
+
+def main():
+    ensure_data()
+    _startup_ping()
+    # ... dein bisheriger Code ...
+
 import os, time, json, requests
 import ccxt
 import pandas as pd
