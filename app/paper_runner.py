@@ -15,20 +15,32 @@ try:
 except Exception as _e:
     print("[INIT] LS failed:", _e)
 
-def _startup_ping():
-    token = os.getenv("TELEGRAM_BOT_TOKEN")
-    chat  = os.getenv("TELEGRAM_CHAT_ID")
-    if not token or not chat:
-        print("[WARN] Missing TELEGRAM env, skipping Telegram ping")
-        return
-    try:
-        import urllib.request, urllib.parse
-
 # === RUNTIME GUARDS & TELEGRAM PING ===
 import os, json, time
 from datetime import datetime, timezone
 try:
     import requests
+import os, time, json
+try:
+    import requests
+except Exception as _e:
+    requests = None
+    print("[INIT] requests not available:", _e)
+
+def _tg(msg: str):
+    token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+    chat  = os.getenv("TELEGRAM_CHAT_ID", "")
+    print("[INIT] TELEGRAM ENV present:", bool(token), bool(chat))  # Sichtbar im Log
+    if not (token and chat and requests):
+        return
+    url = f"https://api.telegram.org/bot{token}/sendMessage"
+    try:
+        requests.post(url, json={"chat_id": chat, "text": msg}, timeout=10)
+    except Exception as e:
+        print("Telegram send fail:", e)
+
+def _startup_ping():
+    _tg("✅ Paper-Runner gestartet.")
 except Exception as _e:
     print("CRASHED\n", _e)
     raise
@@ -59,14 +71,6 @@ def _tg(msg: str):
     except Exception as e:
         print("[INIT] Telegram send fail:", e)
 
-def _startup_ping():
-    _tg(f"Paper-Runner gestartet {datetime.now(timezone.utc).isoformat()}Z")
-        data = urllib.parse.urlencode({"chat_id": chat, "text": "✅ Paper-Runner gestartet."}).encode()
-        req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
-        with urllib.request.urlopen(req, timeout=10) as r:
-            print("[OK] Telegram ping sent, status:", r.status)
-    except Exception as e:
-        print("[ERR] Telegram ping failed:", e)
 # ---------------------------------------------------------------------------
 
 PAIR  = os.getenv("PAIR", "BTC/USDT")
@@ -128,6 +132,7 @@ def fetch_df(ex):
     return df
 
 def main():
+    _startup_ping()
     ex = ccxt.bitget({'enableRateLimit': True})
     state = load_state()
     send("Paper-Runner gestartet (kein Echtgeld).")
