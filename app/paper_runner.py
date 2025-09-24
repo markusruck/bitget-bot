@@ -23,6 +23,44 @@ def _startup_ping():
         return
     try:
         import urllib.request, urllib.parse
+
+# === RUNTIME GUARDS & TELEGRAM PING ===
+import os, json, time
+from datetime import datetime, timezone
+try:
+    import requests
+except Exception as _e:
+    print("CRASHED\n", _e)
+    raise
+
+DATA_DIR    = "/data"
+STATE_PATH  = f"{DATA_DIR}/state.json"
+TRADES_CSV  = f"{DATA_DIR}/paper_trades.csv"
+LOG_PATH    = f"{DATA_DIR}/paper.log"
+
+os.makedirs(DATA_DIR, exist_ok=True)
+if not os.path.exists(STATE_PATH):
+    with open(STATE_PATH, "w") as f:
+        json.dump({}, f)
+if not os.path.exists(TRADES_CSV):
+    with open(TRADES_CSV, "w") as f:
+        f.write("timestamp,side,price,reason\n")
+open(LOG_PATH, "a").close()
+
+def _tg(msg: str):
+    tok = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat = os.getenv("TELEGRAM_CHAT_ID")
+    if not tok or not chat:
+        print("[INIT] Telegram ENV fehlt -> kein Ping")
+        return
+    try:
+        url = f"https://api.telegram.org/bot{tok}/sendMessage"
+        requests.post(url, json={"chat_id": chat, "text": msg}, timeout=10)
+    except Exception as e:
+        print("[INIT] Telegram send fail:", e)
+
+def _startup_ping():
+    _tg(f"Paper-Runner gestartet {datetime.now(timezone.utc).isoformat()}Z")
         data = urllib.parse.urlencode({"chat_id": chat, "text": "✅ Paper-Runner gestartet."}).encode()
         req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
         with urllib.request.urlopen(req, timeout=10) as r:
