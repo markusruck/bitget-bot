@@ -2,6 +2,34 @@ import os, time, json, requests
 import ccxt
 import pandas as pd
 from datetime import datetime, timezone
+# --- DEBUG + Telegram Startup-Ping ------------------------------------------
+import os, sys, time
+
+print("[INIT] TELEGRAM ENV present:",
+      bool(os.getenv("TELEGRAM_BOT_TOKEN")),
+      bool(os.getenv("TELEGRAM_CHAT_ID")))
+
+print("[INIT] CWD:", os.getcwd())
+try:
+    print("[INIT] LS:", os.listdir("."))
+except Exception as _e:
+    print("[INIT] LS failed:", _e)
+
+def _startup_ping():
+    token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat  = os.getenv("TELEGRAM_CHAT_ID")
+    if not token or not chat:
+        print("[WARN] Missing TELEGRAM env, skipping Telegram ping")
+        return
+    try:
+        import urllib.request, urllib.parse
+        data = urllib.parse.urlencode({"chat_id": chat, "text": "✅ Paper-Runner gestartet."}).encode()
+        req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
+        with urllib.request.urlopen(req, timeout=10) as r:
+            print("[OK] Telegram ping sent, status:", r.status)
+    except Exception as e:
+        print("[ERR] Telegram ping failed:", e)
+# ---------------------------------------------------------------------------
 
 PAIR  = os.getenv("PAIR", "BTC/USDT")
 TF    = os.getenv("TIMEFRAME", "1h")
