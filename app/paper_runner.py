@@ -48,14 +48,6 @@ def ensure_data():
 # ================= END CLEAN HEADER =================
 
 # ================== CLEAN HEADER ==================
-import os
-import sys
-import time
-import json
-import requests
-import ccxt
-import pandas as pd
-from datetime import datetime, timezone
 
 # --- DEBUG: Telegram ENV + Umgebung ----------------
 print("[INIT] TELEGRAM ENV present:",
@@ -103,9 +95,6 @@ def main():
     # ... dein bisheriger Code ...
 
 import os, time, json, requests
-import ccxt
-import pandas as pd
-from datetime import datetime, timezone
 # --- DEBUG + Telegram Startup-Ping ------------------------------------------
 import os, sys, time
 
@@ -121,16 +110,12 @@ except Exception as _e:
 
 # === RUNTIME GUARDS & TELEGRAM PING ===
 import os, json, time
-from datetime import datetime, timezone
-try:
-    import requests
+
 import os, time, json
-try:
-    import requests
+
 
 # === RUNTIME GUARD & TELEGRAM PING ===
 import os, json, requests
-from datetime import datetime, timezone
 
 DATA_DIR = "/data"
 STATE = os.path.join(DATA_DIR, "state.json")
